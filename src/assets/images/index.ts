@@ -5,3 +5,7 @@ export { default as EVACUATION_MONITORING } from "./evacuation-monitoring.png";
 export { default as USER_MANAGEMENT } from "./user-management.png";
 export { default as VISITOR_MANAGEMENT } from "./visitor-management.png";
 export { default as EPSON_LOGO_WHITE } from "./epson-logo-white.png";
+export { default as PH_FLAG } from "./ph-flag.png";
+export { default as JP_JFLAG } from "./jp-flag.png";
+export { default as ELLIPSE_1 } from "./ellipse1.png";
+export { default as ELLIPSE_2 } from "./ellipse2.png";
