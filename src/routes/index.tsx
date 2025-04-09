@@ -18,9 +18,20 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CalendarDays, Flame } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { io } from "socket.io-client";
+
 export const Route = createFileRoute("/")({
   component: App,
 });
+
+interface Employee {
+  employee_id: string;
+  full_name: string;
+  department: string;
+  time: string;
+  tag_id: string;
+  readCount: number;
+}
 
 function App() {
   const today = new Date();
@@ -29,6 +40,63 @@ function App() {
 
   const [japanTime, setJapanTime] = useState("");
   const [philippinesTime, setPhilippinesTime] = useState("");
+  const [logs, setLogs] = useState<Employee[]>([]);
+
+  const socket = io("http://localhost:3000");
+
+  useEffect(() => {
+    socket.connect();
+
+    const handleConnect = () => {
+      console.log("Connected to server");
+      socket.emit("join", "1234");
+    };
+
+    socket.on("connect", handleConnect);
+
+    socket.on("data", (data) => {
+      console.log("📥 Received data:", data);
+      setLogs((prev) => {
+        const updatedLogs = [...prev];
+        const existingIndex = updatedLogs.findIndex(
+          (log) => log.employee_id === data.employee_id
+        );
+
+        if (existingIndex !== -1) {
+          updatedLogs[existingIndex] = {
+            ...updatedLogs[existingIndex],
+            readCount: updatedLogs[existingIndex]?.readCount + 1,
+            time: data.time,
+          };
+        } else {
+          updatedLogs.unshift({ ...data, readCount: 1 });
+
+          // remove the newly added data after 10 seconds
+          setTimeout(() => {
+            setLogs((currentLogs) =>
+              currentLogs.filter((log) => log.employee_id !== data.employee_id)
+            );
+          }, 10000);
+        }
+        return updatedLogs.sort((a, b) => {
+          const timeA = new Date(a.time).getTime();
+          const timeB = new Date(b.time).getTime();
+          return timeB - timeA; // Sort in descending order
+        });
+      });
+    });
+
+    socket.on("disconnect", () => {
+      console.warn("Disconnected from server");
+    });
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("data");
+      socket.disconnect();
+    };
+  }, []);
+
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -63,15 +131,15 @@ function App() {
 
   // Column definitions
   const columns: Column[] = [
-    { key: "employeeId", label: "EMPLOYEE NAME" },
-    { key: "employeeName", label: "EMPLOYEE NAME" },
+    { key: "employee_id", label: "EMPLOYEE NAME" },
+    { key: "full_name", label: "EMPLOYEE NAME" },
     { key: "department", label: "DEPARTMENT" },
-    { key: "timeIn", label: "TIME IN" },
+    { key: "time", label: "TIME IN" },
     { key: "readCount", label: "READ COUNT" },
   ];
 
   return (
-    <div className="bg-blue-50 ">
+    <div className="bg-blue-50 min-h-screen ">
       {/* Status bar */}
       <div className="bg-[#003F98] flex text-white justify-between px-8 items-center h-[103px] relative">
         <img
@@ -145,21 +213,21 @@ function App() {
 
                 {/* Table Body */}
                 <TableBody>
-                  {SAMPLE_DATA.map((item, index) => (
+                  {logs.map((item, index) => (
                     <TableRow
-                      key={item.employeeId}
+                      key={item.employee_id + index}
                       className={`text-xl text-[#003F98] ${
                         index % 2 === 0 ? "bg-white" : "bg-[#F4F7FC]"
                       } ${
-                        index === SAMPLE_DATA.length - 1
+                        index === logs.length - 1
                           ? "rounded-bl-xl rounded-br-xl"
                           : ""
                       }`}
                     >
-                      <TableCell>{item.employeeId}</TableCell>
-                      <TableCell>{item.employeeName}</TableCell>
+                      <TableCell>{item.employee_id}</TableCell>
+                      <TableCell>{item.full_name}</TableCell>
                       <TableCell>{item.department}</TableCell>
-                      <TableCell>{item.timeIn}</TableCell>
+                      <TableCell>{item.time}</TableCell>
                       <TableCell className="text-end">
                         {item.readCount}
                       </TableCell>
@@ -174,19 +242,3 @@ function App() {
     </div>
   );
 }
-
-interface User {
-  employeeId: number;
-  employeeName: string;
-  department: string;
-  timeIn: string;
-  readCount: number;
-}
-
-const SAMPLE_DATA: User[] = Array.from({ length: 20 }, (_, index) => ({
-  employeeId: index + 1,
-  employeeName: `Employee ${index + 1}`,
-  department: index % 2 === 0 ? "IT" : "Design",
-  timeIn: `${8 + Math.floor(index / 2)}:${index % 2 === 0 ? "00" : "30"} AM`,
-  readCount: Math.floor(Math.random() * 10) + 1,
-}));
