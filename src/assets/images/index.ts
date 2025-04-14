@@ -9,3 +9,5 @@ export { default as PH_FLAG } from "./ph-flag.png";
 export { default as JP_JFLAG } from "./jp-flag.png";
 export { default as ELLIPSE_1 } from "./ellipse1.png";
 export { default as ELLIPSE_2 } from "./ellipse2.png";
+export { default as NO_ENTRIES } from "./no-entries.png";
+export { default as EMERGENCY_EVACUATION } from "./emergency-evacuation.png";
