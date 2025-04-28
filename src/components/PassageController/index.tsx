@@ -14,60 +14,74 @@ import { io } from "socket.io-client";
 import StatusBar from "./StatusBar";
 
 interface Employee {
-  employee_id: string;
+  EmployeeID: string;
   full_name: string;
-  department: string;
+  DepartmentName: string;
+  division: string;
+  section: string;
+  epc: string;
   time: string;
-  tag_id: string;
   readCount: number;
 }
 
+// Column definitions
+const columns: Column[] = [
+  { key: "EmployeeID", label: "EMPLOYEE ID" },
+  { key: "epc", label: "EPC" },
+  { key: "DepartmentName", label: "DEPARTMENT" },
+  { key: "time", label: "TIME IN" },
+  { key: "readCount", label: "READ COUNT" },
+];
+
+const socket = io("http://62.72.31.234:30725");
+
 const PassageController = () => {
   const [logs, setLogs] = useState<Employee[]>([]);
-
-  const socket = io("http://localhost:3000");
-
   useEffect(() => {
-    socket.connect();
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    let timeoutId: number | undefined;
+
+    const resetLogs = () => {
+      setLogs([]);
+    };
 
     const handleConnect = () => {
       console.log("Connected to server");
-      socket.emit("join", "1234");
+      socket.emit("join", "in");
     };
 
-    socket.on("connect", handleConnect);
-
-    socket.on("data", (data) => {
-      console.log("Received data:", data);
+    const handleData = (data: Employee) => {
       setLogs((prev) => {
         const updatedLogs = [...prev];
         const existingIndex = updatedLogs.findIndex(
-          (log) => log.employee_id === data.employee_id
+          (log) => log.epc === data.epc
         );
 
         if (existingIndex !== -1) {
           updatedLogs[existingIndex] = {
             ...updatedLogs[existingIndex],
             readCount: updatedLogs[existingIndex]?.readCount + 1,
-            time: data.time,
           };
         } else {
-          updatedLogs.unshift({ ...data, readCount: 1 });
-
-          // remove the newly added data after 10 seconds
-          setTimeout(() => {
-            setLogs((currentLogs) =>
-              currentLogs.filter((log) => log.employee_id !== data.employee_id)
-            );
-          }, 10000);
+          updatedLogs.unshift({
+            ...data,
+            readCount: 1,
+            time: new Date().toLocaleString(),
+          });
         }
-        return updatedLogs.sort((a, b) => {
-          const timeA = new Date(a.time).getTime();
-          const timeB = new Date(b.time).getTime();
-          return timeB - timeA; // Sort in descending order
-        });
+        return updatedLogs;
       });
-    });
+
+      // Reset the timeout whenever new data is received
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(resetLogs, 60000); // 1 minute
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("data", handleData);
 
     socket.on("disconnect", () => {
       console.warn("Disconnected from server");
@@ -75,23 +89,15 @@ const PassageController = () => {
 
     return () => {
       socket.off("connect", handleConnect);
-      socket.off("data");
+      socket.off("data", handleData);
       socket.disconnect();
+      clearTimeout(timeoutId);
     };
   }, []);
 
-  // Column definitions
-  const columns: Column[] = [
-    { key: "employee_id", label: "EMPLOYEE ID" },
-    { key: "full_name", label: "EMPLOYEE NAME" },
-    { key: "department", label: "DEPARTMENT" },
-    { key: "time", label: "TIME IN" },
-    { key: "readCount", label: "READ COUNT" },
-  ];
-
   return (
     <div className="bg-blue-50 min-h-screen ">
-      <StatusBar type="EVACUATION" isOnline={true} />
+      <StatusBar type="ENTRY" isOnline={true} />
 
       {/* content */}
       <div className="p-8">
@@ -102,46 +108,39 @@ const PassageController = () => {
             Live Data
           </p>
           {logs.length > 0 ? (
-            <div className="border-solid border border-neutral-400 rounded-xl mt-4">
-              <div className="overflow-x-auto max-h-[10000px]">
-                <Table className="min-w-full  z-0">
-                  <TableHeader>
-                    <TableRow className="bg-[#F4F7FCBF] ">
-                      {columns.map((item, index) => (
+            <div className="border border-neutral-400 rounded-xl mt-4 overflow-hidden flex flex-col h-[90%]">
+              {/* HEADER */}
+              <div className="flex-shrink-0">
+                <Table className="w-full table-fixed">
+                  <TableHeader className="bg-[#F4F7FCBF]">
+                    <TableRow>
+                      {columns.map((item) => (
                         <TableHead
                           key={item.key}
-                          className={`text-lg font-bold text-[#003F98] sticky top-0 z-10 ${
-                            index === 0
-                              ? "rounded-tl-xl "
-                              : index === columns.length - 1
-                                ? "rounded-tr-xl"
-                                : ""
-                          }`}
+                          className="text-lg text-left font-bold text-[#003F98] p-2"
                         >
                           {item.label}
                         </TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
+                </Table>
+              </div>
+
+              <div className="flex-1 overflow-y-auto">
+                <Table className="w-full table-fixed">
+                  <TableBody className="text-[#003F98]">
                     {logs?.map((item, index) => (
                       <TableRow
-                        key={item.employee_id + index}
-                        className={`text-xl text-[#003F98] ${
-                          index % 2 === 0 ? "bg-white" : "bg-[#F4F7FC]"
-                        } ${
-                          index === logs.length - 1
-                            ? "rounded-bl-xl rounded-br-xl"
-                            : ""
-                        }`}
+                        key={item.epc + index}
+                        className={`text-xl ${index % 2 === 0 ? "bg-white" : "bg-[#F4F7FC]"}`}
                       >
-                        <TableCell>{item.employee_id}</TableCell>
-                        <TableCell>{item.full_name}</TableCell>
-                        <TableCell>{item.department}</TableCell>
-                        <TableCell>{item.time}</TableCell>
-                        <TableCell className="text-end">
-                          {item.readCount}
-                        </TableCell>
+                        {columns.map((column) => {
+                          const value = item[column.key as keyof Employee];
+                          return (
+                            <TableCell key={column.key}>{value}</TableCell>
+                          );
+                        })}
                       </TableRow>
                     ))}
                   </TableBody>
