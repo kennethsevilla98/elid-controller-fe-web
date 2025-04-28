@@ -12,6 +12,8 @@ import { Flame } from "lucide-react";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import StatusBar from "./StatusBar";
+import { getIdleTimeOut, getPassageType, getWebSocketUrl } from "@/utils/env";
+import { cn } from "@/lib/utils";
 
 interface Employee {
   EmployeeID: string;
@@ -33,7 +35,11 @@ const columns: Column[] = [
   { key: "readCount", label: "READ COUNT" },
 ];
 
-const socket = io("http://62.72.31.234:30725");
+const socketUrl = getWebSocketUrl();
+const passageType = getPassageType() as "in" | "out" | "evacuation";
+const idleTimeOut = getIdleTimeOut();
+
+const socket = io(socketUrl);
 
 const PassageController = () => {
   const [logs, setLogs] = useState<Employee[]>([]);
@@ -50,7 +56,7 @@ const PassageController = () => {
 
     const handleConnect = () => {
       console.log("Connected to server");
-      socket.emit("join", "in");
+      socket.emit("join", passageType);
     };
 
     const handleData = (data: Employee) => {
@@ -75,9 +81,8 @@ const PassageController = () => {
         return updatedLogs;
       });
 
-      // Reset the timeout whenever new data is received
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(resetLogs, 60000); // 1 minute
+      timeoutId = setTimeout(resetLogs, Number(idleTimeOut));
     };
 
     socket.on("connect", handleConnect);
@@ -97,13 +102,18 @@ const PassageController = () => {
 
   return (
     <div className="bg-blue-50 min-h-screen ">
-      <StatusBar type="ENTRY" isOnline={true} />
+      <StatusBar type={passageType} isOnline={true} />
 
       {/* content */}
       <div className="p-8">
         {/* table */}
         <div className="mt-4 shadow-lg p-8 rounded-xl bg-white h-[calc(100vh-300px)] overflow-y-auto">
-          <p className="font-bold text-xl text-[#003F98] flex">
+          <p
+            className={cn(
+              "font-bold text-xl  flex",
+              passageType === "evacuation" ? "text-red-500" : "text-[#003F98]"
+            )}
+          >
             <Flame strokeWidth={3} />
             Live Data
           </p>

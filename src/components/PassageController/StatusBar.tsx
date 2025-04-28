@@ -4,16 +4,23 @@ import DateTimeContent from "./DateTimeContent";
 import { cn } from "@/lib/utils";
 
 interface StatusBarProps {
-  type?: string;
+  type?: "in" | "out" | "evacuation";
   isOnline?: boolean;
 }
-const StatusBar = ({ type = "ENTRANCE", isOnline = true }: StatusBarProps) => {
+
+const titleHeader = {
+  in: "ENTRANCE",
+  out: "EXIT",
+  evacuation: "EVACUATION",
+};
+
+const StatusBar = ({ type = "in", isOnline = true }: StatusBarProps) => {
   return (
     <>
       <div
         className={cn(
           "flex text-white justify-between px-8 items-center h-[103px] relative",
-          type !== "EVACUATION" ? "bg-[#003F98] " : "bg-red-800"
+          type !== "evacuation" ? "bg-[#003F98] " : "bg-red-800"
         )}
       >
         <img
@@ -29,7 +36,7 @@ const StatusBar = ({ type = "ENTRANCE", isOnline = true }: StatusBarProps) => {
           className="absolute top-0 right-0"
         />
         <img src={EPSON_LOGO_WHITE} alt="Epson Logo" width={156} height={36} />
-        <p className="font-extrabold text-4xl">{type}</p>
+        <p className="font-extrabold text-4xl">{titleHeader[type]}</p>
         <span className="bg-[#F7FAFF] rounded-full px-4 text-black flex items-center gap-2">
           <span
             className={cn(
@@ -40,7 +47,7 @@ const StatusBar = ({ type = "ENTRANCE", isOnline = true }: StatusBarProps) => {
           {isOnline ? "ONLINE MODE" : "OFFLINE MODE"}
         </span>
       </div>
-      {type === "EVACUATION" ? <AlertStripe /> : <DateTimeContent />}
+      {type === "evacuation" ? <AlertStripe /> : <DateTimeContent />}
     </>
   );
 };

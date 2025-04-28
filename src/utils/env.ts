@@ -17,4 +17,7 @@ export const getEnvVar = (key: string): string => {
 // Create specific getters for each env variable
 export const getApiBaseUrl = () => getEnvVar("VITE_API_BASE_URL");
 export const getDockerBaseUrl = () => getEnvVar("VITE_DOCKER_BASE_URL");
+export const getWebSocketUrl = () => getEnvVar("VITE_WEB_SOCKET_URL");
+export const getPassageType = () => getEnvVar("VITE_PASSAGE_TYPE");
+export const getIdleTimeOut = () => getEnvVar("VITE_IDLE_TIMEOUT");
 // Add other env variable getters as needed
