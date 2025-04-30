@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: elid-controller-fe-web:latest
     ports:
       - "8765:80"
     restart: always
