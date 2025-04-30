@@ -27,9 +27,9 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Create entrypoint script to handle environment variables
 RUN printf '#!/bin/sh\n\
-echo "window.ENV = window.ENV || {};" > /usr/share/nginx/html/env-config.js\n\
+echo "window.env = window.env || {};" > /usr/share/nginx/html/env-config.js\n\
 for var in $(env | grep "^VITE_"); do\n\
-    echo "window.ENV.${var%%=*}=\"${var#*=}\";" >> /usr/share/nginx/html/env-config.js\n\
+    echo "window.env.${var%%=*}=\"${var#*=}\";" >> /usr/share/nginx/html/env-config.js\n\
 done\n\
 # Ensure proper permissions\n\
 chown -R nginx:nginx /usr/share/nginx/html\n\

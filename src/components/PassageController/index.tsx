@@ -39,14 +39,16 @@ const socketUrl = getWebSocketUrl();
 const passageType = getPassageType() as "in" | "out" | "evacuation";
 const idleTimeOut = getIdleTimeOut();
 
-const socket = io(socketUrl);
-
 const PassageController = () => {
   const [logs, setLogs] = useState<Employee[]>([]);
   useEffect(() => {
-    if (!socket.connected) {
-      socket.connect();
-    }
+    const socket = io(socketUrl, {
+      transports: ["websocket"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 10000,
+    });
 
     let timeoutId: number | undefined;
 
@@ -92,9 +94,24 @@ const PassageController = () => {
       console.warn("Disconnected from server");
     });
 
+    const handleConnectError = (error: Error) => {
+      console.error("Connection error: ", error);
+      if (
+        error.message.includes("ECONNREFUSED") ||
+        error.message.includes("ENOTFOUND")
+      ) {
+        console.error(
+          "The server IP might be incorrect or the server is unavailable."
+        );
+      }
+    };
+
+    socket.on("connect_error", handleConnectError);
+
     return () => {
       socket.off("connect", handleConnect);
       socket.off("data", handleData);
+      socket.off("connect_error", handleConnectError);
       socket.disconnect();
       clearTimeout(timeoutId);
     };
@@ -108,15 +125,21 @@ const PassageController = () => {
       <div className="p-8">
         {/* table */}
         <div className="mt-4 shadow-lg p-8 rounded-xl bg-white h-[calc(100vh-300px)] overflow-y-auto">
-          <p
-            className={cn(
-              "font-bold text-xl  flex",
-              passageType === "evacuation" ? "text-red-500" : "text-[#003F98]"
-            )}
-          >
-            <Flame strokeWidth={3} />
-            Live Data
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <p
+              className={cn(
+                "font-bold text-xl  flex",
+                passageType === "evacuation" ? "text-red-500" : "text-[#003F98]"
+              )}
+            >
+              <Flame strokeWidth={3} />
+              Live Data
+            </p>
+            <p className="font-bold text-xl mr-6 text-[#003F98]">
+              {"Total EPC: " + logs.length}
+            </p>
+          </div>
+
           {logs.length > 0 ? (
             <div className="border border-neutral-400 rounded-xl mt-4 overflow-hidden flex flex-col h-[90%]">
               {/* HEADER */}
