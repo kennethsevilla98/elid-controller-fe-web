@@ -24,9 +24,9 @@ interface Employee {
   epc: string;
   time: string;
   readCount: number;
-  tag_id?:string|number;
-  employee_id?:string;
-  department?:string;
+  tag_id?: string | number;
+  employee_id?: string;
+  department?: string;
 }
 
 // Column definitions
@@ -39,11 +39,15 @@ const columns: Column[] = [
 ];
 
 const socketUrl = getWebSocketUrl();
-const passageType = getPassageType() as "in" | "out" | "evacuation";
+const passageType = getPassageType() as
+  | "controller_in"
+  | "controller_out"
+  | "controller_evacuation";
 const idleTimeOut = getIdleTimeOut();
 
 const PassageController = () => {
   const [logs, setLogs] = useState<Employee[]>([]);
+
   useEffect(() => {
     const socket = io(socketUrl, {
       transports: ["websocket"],
@@ -122,7 +126,7 @@ const PassageController = () => {
 
   return (
     <div className="bg-blue-50 min-h-screen ">
-      <StatusBar type={passageType} isOnline={true} />
+      <StatusBar type={passageType} />
 
       {/* content */}
       <div className="p-8">
@@ -132,7 +136,9 @@ const PassageController = () => {
             <p
               className={cn(
                 "font-bold text-xl  flex",
-                passageType === "evacuation" ? "text-red-500" : "text-[#003F98]"
+                passageType === "controller_evacuation"
+                  ? "text-red-500"
+                  : "text-[#003F98]"
               )}
             >
               <Flame strokeWidth={3} />

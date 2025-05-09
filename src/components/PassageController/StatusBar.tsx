@@ -2,25 +2,28 @@ import { ELLIPSE_1, ELLIPSE_2, EPSON_LOGO_WHITE } from "@/assets/images";
 import AlertStripe from "./AlertStripe";
 import DateTimeContent from "./DateTimeContent";
 import { cn } from "@/lib/utils";
+import { useLANStatus } from "@/hooks/useStableLocalNetworkStatus";
 
 interface StatusBarProps {
-  type?: "in" | "out" | "evacuation";
+  type?: "controller_in" | "controller_out" | "controller_evacuation";
   isOnline?: boolean;
 }
 
 const titleHeader = {
-  in: "ENTRANCE",
-  out: "EXIT",
-  evacuation: "EVACUATION",
+  controller_in: "ENTRANCE",
+  controller_out: "EXIT",
+  controller_evacuation: "EVACUATION",
 };
 
-const StatusBar = ({ type = "in", isOnline = true }: StatusBarProps) => {
+const StatusBar = ({ type = "controller_in" }: StatusBarProps) => {
+  const { isConnectedToLAN } = useLANStatus(1000);
+
   return (
     <>
       <div
         className={cn(
           "flex text-white justify-between px-8 items-center h-[103px] relative",
-          type !== "evacuation" ? "bg-[#003F98] " : "bg-red-800"
+          type !== "controller_evacuation" ? "bg-[#003F98] " : "bg-red-800"
         )}
       >
         <img
@@ -41,13 +44,13 @@ const StatusBar = ({ type = "in", isOnline = true }: StatusBarProps) => {
           <span
             className={cn(
               "h-3 w-3 rounded-full ",
-              isOnline ? "bg-green-600" : "bg-red-800"
+              isConnectedToLAN ? "bg-green-600" : "bg-red-800"
             )}
           ></span>
-          {isOnline ? "ONLINE MODE" : "OFFLINE MODE"}
+          {isConnectedToLAN ? "ONLINE MODE" : "OFFLINE MODE"}
         </span>
       </div>
-      {type === "evacuation" ? <AlertStripe /> : <DateTimeContent />}
+      {type === "controller_evacuation" ? <AlertStripe /> : <DateTimeContent />}
     </>
   );
 };
