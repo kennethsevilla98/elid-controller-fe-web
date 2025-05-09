@@ -24,13 +24,16 @@ interface Employee {
   epc: string;
   time: string;
   readCount: number;
+  tag_id?:string|number;
+  employee_id?:string;
+  department?:string;
 }
 
 // Column definitions
 const columns: Column[] = [
-  { key: "EmployeeID", label: "EMPLOYEE ID" },
-  { key: "epc", label: "EPC" },
-  { key: "DepartmentName", label: "DEPARTMENT" },
+  { key: "employee_id", label: "EMPLOYEE ID" },
+  { key: "tag_id", label: "EPC" },
+  { key: "department", label: "DEPARTMENT" },
   { key: "time", label: "TIME IN" },
   { key: "readCount", label: "READ COUNT" },
 ];
@@ -65,7 +68,7 @@ const PassageController = () => {
       setLogs((prev) => {
         const updatedLogs = [...prev];
         const existingIndex = updatedLogs.findIndex(
-          (log) => log.epc === data.epc
+          (log) => log.tag_id === data.tag_id
         );
 
         if (existingIndex !== -1) {
