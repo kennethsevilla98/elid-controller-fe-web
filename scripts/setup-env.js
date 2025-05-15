@@ -5,7 +5,11 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const sourceEnvPath = path.join(__dirname, "../src/envs/.env.development");
+// Check if --production flag is provided
+const isProduction = process.argv.includes("--production");
+const envType = isProduction ? "production" : "development";
+
+const sourceEnvPath = path.join(__dirname, `../src/envs/.env.${envType}`);
 const targetEnvPath = path.join(__dirname, "../.env");
 
 function copyEnvFile() {
@@ -16,7 +20,9 @@ function copyEnvFile() {
     // Write to the root .env file
     fs.writeFileSync(targetEnvPath, envContent);
 
-    console.log("✅ Environment variables copied successfully");
+    console.log(
+      `✅ ${envType.toUpperCase()} environment variables copied successfully`
+    );
   } catch (error) {
     console.error("❌ Error copying environment variables:", error.message);
     process.exit(1);
@@ -26,12 +32,17 @@ function copyEnvFile() {
 // Initial copy
 copyEnvFile();
 
-// Watch for changes
-fs.watch(sourceEnvPath, (eventType, filename) => {
-  if (eventType === "change") {
-    console.log(`🔄 Detected changes in ${filename}`);
-    copyEnvFile();
-  }
-});
+// Check if --no-watch flag is provided
+const shouldWatch = !process.argv.includes("--no-watch");
 
-console.log("👀 Watching for changes in .env.development...");
+// Watch for changes only if not using --no-watch
+if (shouldWatch) {
+  fs.watch(sourceEnvPath, (eventType, filename) => {
+    if (eventType === "change") {
+      console.log(`🔄 Detected changes in ${filename}`);
+      copyEnvFile();
+    }
+  });
+
+  console.log(`👀 Watching for changes in .env.${envType}...`);
+}

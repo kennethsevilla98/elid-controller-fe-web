@@ -5,9 +5,10 @@
   "scripts": {
     "setup-env": "node scripts/setup-env.js",
     "setup-env:once": "node scripts/setup-env.js --no-watch",
+    "setup-env:prod": "node scripts/setup-env.js --production --no-watch",
     "dev": "vite --port 3000",
     "start": "bun run scripts/dev-with-env-watch.js",
-    "build": "vite build && tsc",
+    "build": "bun run setup-env:prod && vite build && tsc",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
