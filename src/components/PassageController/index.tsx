@@ -104,7 +104,7 @@ const PassageController = () => {
 
     socket.on("connect", handleConnect);
 
-    socket.on("device_type", (type) => {
+    socket.on("device_detail", (type) => {
       console.log(`Device type: ${type}`);
 
       if (!joinedRooms.has(type)) {
