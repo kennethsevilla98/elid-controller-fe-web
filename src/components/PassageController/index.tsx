@@ -34,7 +34,7 @@ type PassageType = "controller_in" | "controller_out" | "controller_evacuation";
 const passageTypeMapping: Record<string, PassageType> = {
   In: "controller_in",
   Out: "controller_out",
-  Evacution: "controller_evacuation",
+  Evacuation: "controller_evacuation",
 };
 
 // Column definitions
