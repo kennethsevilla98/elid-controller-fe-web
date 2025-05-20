@@ -12,7 +12,7 @@ import { Flame } from "lucide-react";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import StatusBar from "./StatusBar";
-import { getIdleTimeOut, getPassageType, getWebSocketUrl } from "@/utils/env";
+import { getIdleTimeOut, getWebSocketUrl } from "@/utils/env";
 import { cn } from "@/lib/utils";
 
 interface Employee {
@@ -29,6 +29,14 @@ interface Employee {
   department?: string;
 }
 
+type PassageType = "controller_in" | "controller_out" | "controller_evacuation";
+
+const passageTypeMapping: Record<string, PassageType> = {
+  In: "controller_in",
+  Out: "controller_out",
+  Evacution: "controller_evacuation",
+};
+
 // Column definitions
 const columns: Column[] = [
   { key: "employee_id", label: "EMPLOYEE ID" },
@@ -39,14 +47,13 @@ const columns: Column[] = [
 ];
 
 const socketUrl = getWebSocketUrl();
-const passageType = getPassageType() as
-  | "controller_in"
-  | "controller_out"
-  | "controller_evacuation";
+
+// const passageType = getPassageType() as PassageType;
 const idleTimeOut = getIdleTimeOut();
 
 const PassageController = () => {
   const [logs, setLogs] = useState<Employee[]>([]);
+  const [passageType, setPassageType] = useState<PassageType>("controller_in");
 
   useEffect(() => {
     const socket = io(socketUrl, {
@@ -58,14 +65,10 @@ const PassageController = () => {
     });
 
     let timeoutId: number | undefined;
+    const joinedRooms = new Set();
 
     const resetLogs = () => {
       setLogs([]);
-    };
-
-    const handleConnect = () => {
-      console.log("Connected to server");
-      socket.emit("join", passageType);
     };
 
     const handleData = (data: Employee) => {
@@ -94,7 +97,25 @@ const PassageController = () => {
       timeoutId = setTimeout(resetLogs, Number(idleTimeOut));
     };
 
+    const handleConnect = () => {
+      console.log("Connected to server");
+      socket.emit("join", "check_device");
+    };
+
     socket.on("connect", handleConnect);
+
+    socket.on("device_type", (type) => {
+      console.log(`Device type: ${type}`);
+
+      if (!joinedRooms.has(type)) {
+        socket.emit("join", passageTypeMapping[type]);
+        joinedRooms.add(type);
+        setPassageType(passageTypeMapping[type]);
+      } else {
+        console.log(`Already joined room: ${type}, skipping`);
+      }
+    });
+
     socket.on("data", handleData);
 
     socket.on("disconnect", () => {
