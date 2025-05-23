@@ -81,7 +81,6 @@ const PassageController = () => {
           updatedLogs.unshift({
             ...data,
             readCount: 1,
-            time: new Date().toLocaleString(),
           });
 
           // remove the newly added data after 10 seconds
