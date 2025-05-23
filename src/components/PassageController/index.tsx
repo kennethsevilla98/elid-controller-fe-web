@@ -12,8 +12,9 @@ import { Flame } from "lucide-react";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import StatusBar from "./StatusBar";
-import { getIdleTimeOut, getWebSocketUrl } from "@/utils/env";
+import { getWebSocketUrl } from "@/utils/env";
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
 
 interface Employee {
   EmployeeID: string;
@@ -48,9 +49,6 @@ const columns: Column[] = [
 
 const socketUrl = getWebSocketUrl();
 
-// const passageType = getPassageType() as PassageType;
-const idleTimeOut = getIdleTimeOut();
-
 const PassageController = () => {
   const [logs, setLogs] = useState<Employee[]>([]);
   const [passageType, setPassageType] = useState<PassageType>("controller_in");
@@ -66,10 +64,6 @@ const PassageController = () => {
 
     let timeoutId: number | undefined;
     const joinedRooms = new Set();
-
-    const resetLogs = () => {
-      setLogs([]);
-    };
 
     const handleData = (data: Employee) => {
       setLogs((prev) => {
@@ -89,12 +83,16 @@ const PassageController = () => {
             readCount: 1,
             time: new Date().toLocaleString(),
           });
+
+          // remove the newly added data after 10 seconds
+          setTimeout(() => {
+            setLogs((currentLogs) =>
+              currentLogs.filter((log) => log.employee_id !== data.employee_id)
+            );
+          }, 10000);
         }
         return updatedLogs;
       });
-
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(resetLogs, Number(idleTimeOut));
     };
 
     const handleConnect = () => {
@@ -165,9 +163,12 @@ const PassageController = () => {
               <Flame strokeWidth={3} />
               Live Data
             </p>
-            <p className="font-bold text-xl mr-6 text-[#003F98]">
-              {"Total EPC: " + logs.length}
-            </p>
+            <div className="flex items-center gap-4">
+              <Button onClick={() => setLogs([])}>Clear Logs</Button>
+              <p className="font-bold text-xl mr-6 text-[#003F98]">
+                {"Total EPC: " + logs.length}
+              </p>
+            </div>
           </div>
 
           {logs.length > 0 ? (
