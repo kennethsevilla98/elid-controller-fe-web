@@ -41,6 +41,7 @@ const passageTypeMapping: Record<string, PassageType> = {
 // Column definitions
 const columns: Column[] = [
   { key: "employee_id", label: "EMPLOYEE ID" },
+  { key: "full_name", label: "EMPLOYEE NAME" },
   { key: "tag_id", label: "EPC" },
   { key: "department", label: "DEPARTMENT" },
   { key: "time", label: "TIME IN" },
