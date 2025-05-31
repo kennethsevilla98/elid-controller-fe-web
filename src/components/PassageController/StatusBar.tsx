@@ -40,10 +40,10 @@ const StatusBar = ({ type = "controller_in" }: StatusBarProps) => {
         />
         <img src={EPSON_LOGO_WHITE} alt="Epson Logo" width={156} height={36} />
         <p className="font-extrabold text-4xl">{titleHeader[type]}</p>
-        <span className="bg-[#F7FAFF] rounded-full px-4 text-black flex items-center gap-2">
+        <span className="bg-[#F7FAFF] rounded-full px-2 text-black flex items-center gap-2">
           <span
             className={cn(
-              "h-3 w-3 rounded-full ",
+              "h-4 w-4 rounded-full ",
               isConnectedToLAN ? "bg-green-600" : "bg-red-800"
             )}
           ></span>

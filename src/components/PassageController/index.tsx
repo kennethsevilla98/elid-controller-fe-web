@@ -8,13 +8,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Flame } from "lucide-react";
+
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import StatusBar from "./StatusBar";
-import { getWebSocketUrl } from "@/utils/env";
-import { cn } from "@/lib/utils";
-import { Button } from "../ui/button";
+import { getIdleTimeOut, getWebSocketUrl } from "@/utils/env";
 
 interface Employee {
   EmployeeID: string;
@@ -30,6 +28,21 @@ interface Employee {
   department?: string;
 }
 
+// Mock data
+const mockEmployees: Employee[] = Array.from({ length: 20 }, (_, index) => ({
+  EmployeeID: `E${String(index + 1).padStart(3, "0")}`,
+  full_name: `Employee John Doe a Dear ${index + 1}`,
+  DepartmentName: `Department ${(index % 10) + 1}`,
+  division: `Division ${(index % 5) + 1}`,
+  section: `Section ${(index % 3) + 1}`,
+  epc: `EPC${index + 1}`,
+  time: `10:${String(index % 60).padStart(2, "0")}`,
+  readCount: 1,
+  tag_id: `TAG${index + 1}`,
+  employee_id: `E${String(index + 1).padStart(3, "0")}`,
+  department: `Department ${(index % 10) + 1}`,
+}));
+
 type PassageType = "controller_in" | "controller_out" | "controller_evacuation";
 
 const passageTypeMapping: Record<string, PassageType> = {
@@ -40,18 +53,17 @@ const passageTypeMapping: Record<string, PassageType> = {
 
 // Column definitions
 const columns: Column[] = [
-  { key: "employee_id", label: "EMPLOYEE ID" },
+  { key: "employee_id", label: "ID" },
   { key: "full_name", label: "EMPLOYEE NAME" },
-  { key: "tag_id", label: "EPC" },
-  { key: "department", label: "DEPARTMENT" },
-  { key: "time", label: "TIME IN" },
-  { key: "readCount", label: "READ COUNT" },
+  { key: "section", label: "SECT." },
+  { key: "time", label: "CLOCKED IN " },
 ];
 
 const socketUrl = getWebSocketUrl();
+const timeOut = Number(getIdleTimeOut());
 
 const PassageController = () => {
-  const [logs, setLogs] = useState<Employee[]>([]);
+  const [logs, setLogs] = useState<Employee[]>(mockEmployees);
   const [passageType, setPassageType] = useState<PassageType>("controller_in");
 
   useEffect(() => {
@@ -89,7 +101,7 @@ const PassageController = () => {
             setLogs((currentLogs) =>
               currentLogs.filter((log) => log.employee_id !== data.employee_id)
             );
-          }, 10000);
+          }, timeOut);
         }
         return updatedLogs;
       });
@@ -144,65 +156,51 @@ const PassageController = () => {
   }, []);
 
   return (
-    <div className="bg-blue-50 min-h-screen ">
+    <div className="bg-blue-50 min-h-screen overflow-hidden">
       <StatusBar type={passageType} />
 
       {/* content */}
       <div className="p-8">
         {/* table */}
         <div className="mt-4 shadow-lg p-8 rounded-xl bg-white h-[calc(100vh-300px)] overflow-y-auto">
-          <div className="flex items-center justify-between mb-4">
-            <p
-              className={cn(
-                "font-bold text-xl  flex",
-                passageType === "controller_evacuation"
-                  ? "text-red-500"
-                  : "text-[#003F98]"
-              )}
-            >
-              <Flame strokeWidth={3} />
-              Live Data
-            </p>
-            <div className="flex items-center gap-4">
-              <Button onClick={() => setLogs([])}>Clear Logs</Button>
-              <p className="font-bold text-xl mr-6 text-[#003F98]">
-                {"Total EPC: " + logs.length}
-              </p>
-            </div>
-          </div>
-
           {logs.length > 0 ? (
-            <div className="border border-neutral-400 rounded-xl mt-4 overflow-hidden flex flex-col h-[90%]">
-              {/* HEADER */}
-              <div className="flex-shrink-0">
-                <Table className="w-full table-fixed">
-                  <TableHeader className="bg-[#F4F7FCBF]">
+            <div className=" border rounded-xl mt-4 overflow-hidden flex flex-col h-[96%]">
+              <div className="flex-1 overflow-y-auto">
+                <Table className="w-full table-auto border">
+                  <TableHeader className="bg-[#F4F7FCBF] sticky top-0 z-10">
                     <TableRow>
-                      {columns.map((item) => (
+                      {columns.map((item, index) => (
                         <TableHead
                           key={item.key}
-                          className="text-lg text-left font-bold text-[#003F98] p-2"
+                          className={`text-lg text-left font-bold text-[#003F98] p-2 border-l min-w-fit whitespace-nowrap ${
+                            index === columns.length - 1 ? "text-right" : ""
+                          }`}
                         >
                           {item.label}
                         </TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>
-                </Table>
-              </div>
 
-              <div className="flex-1 overflow-y-auto">
-                <Table className="w-full table-fixed">
                   <TableBody className="text-[#003F98]">
                     {logs?.map((item, index) => (
                       <TableRow
                         key={item.epc + index}
                         className={`text-xl ${index % 2 === 0 ? "bg-white" : "bg-[#F4F7FC]"}`}
                       >
-                        {columns.map((column) => {
+                        {columns.map((column, colIndex) => {
                           const value = item[column.key as keyof Employee];
                           return (
-                            <TableCell key={column.key}>{value}</TableCell>
+                            <TableCell
+                              key={column.key}
+                              className={`border-l min-w-fit whitespace-nowrap ${
+                                colIndex === columns.length - 1
+                                  ? "text-right"
+                                  : ""
+                              }`}
+                            >
+                              {value}
+                            </TableCell>
                           );
                         })}
                       </TableRow>
