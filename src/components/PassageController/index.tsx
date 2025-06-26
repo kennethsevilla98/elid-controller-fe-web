@@ -1,5 +1,4 @@
 import { NO_ENTRIES } from "@/assets/images";
-import type { Column } from "@/components/ui/dynamic-table";
 import {
   Table,
   TableBody,
@@ -13,6 +12,7 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import StatusBar from "./StatusBar";
 import { getIdleTimeOut, getWebSocketUrl } from "@/utils/env";
+import { cn } from "@/lib/utils";
 
 interface Employee {
   EmployeeID: string;
@@ -28,20 +28,20 @@ interface Employee {
   department?: string;
 }
 
-// Mock data
-const mockEmployees: Employee[] = Array.from({ length: 20 }, (_, index) => ({
-  EmployeeID: `E${String(index + 1).padStart(3, "0")}`,
-  full_name: `Employee John Doe a Dear ${index + 1}`,
-  DepartmentName: `Department ${(index % 10) + 1}`,
-  division: `Division ${(index % 5) + 1}`,
-  section: `Section ${(index % 3) + 1}`,
-  epc: `EPC${index + 1}`,
-  time: `10:${String(index % 60).padStart(2, "0")}`,
-  readCount: 1,
-  tag_id: `TAG${index + 1}`,
-  employee_id: `E${String(index + 1).padStart(3, "0")}`,
-  department: `Department ${(index % 10) + 1}`,
-}));
+// // Mock data
+// const mockEmployees: Employee[] = Array.from({ length: 20 }, (_, index) => ({
+//   EmployeeID: `E${String(index + 1).padStart(3, "0")}`,
+//   full_name: index === 1 ? "UNKNOWN" : `Employee John Doe a Dear ${index + 1}`,
+//   DepartmentName: `Department ${(index % 10) + 1}`,
+//   division: `Division ${(index % 5) + 1}`,
+//   section: `Section ${(index % 3) + 1}`,
+//   epc: `EPC${index + 1}`,
+//   time: `10:${String(index % 60).padStart(2, "0")}`,
+//   readCount: 1,
+//   tag_id: `TAG${index + 1}`,
+//   employee_id: `E${String(index + 1).padStart(3, "0")}`,
+//   department: `Department ${(index % 10) + 1}`,
+// }));
 
 type PassageType = "controller_in" | "controller_out" | "controller_evacuation";
 
@@ -52,18 +52,20 @@ const passageTypeMapping: Record<string, PassageType> = {
 };
 
 // Column definitions
-const columns: Column[] = [
-  { key: "employee_id", label: "ID" },
-  { key: "full_name", label: "EMPLOYEE NAME" },
-  { key: "section", label: "SECT." },
-  { key: "time", label: "CLOCKED IN " },
-];
+const columns = (type: PassageType) => {
+  return [
+    { key: "employee_id", label: "ID" },
+    { key: "full_name", label: "EMPLOYEE NAME" },
+    { key: "section", label: "SECT." },
+    { key: "time", label: type === "controller_out" ? "Outgoing" : "Incoming" },
+  ];
+};
 
 const socketUrl = getWebSocketUrl();
 const timeOut = Number(getIdleTimeOut());
 
 const PassageController = () => {
-  const [logs, setLogs] = useState<Employee[]>(mockEmployees);
+  const [logs, setLogs] = useState<Employee[]>([]);
   const [passageType, setPassageType] = useState<PassageType>("controller_in");
 
   useEffect(() => {
@@ -169,11 +171,13 @@ const PassageController = () => {
                 <Table className="w-full table-auto border">
                   <TableHeader className="bg-[#F4F7FCBF] sticky top-0 z-10">
                     <TableRow>
-                      {columns.map((item, index) => (
+                      {columns(passageType).map((item, index) => (
                         <TableHead
                           key={item.key}
                           className={`text-lg text-left font-bold text-[#003F98] p-2 border-l min-w-fit whitespace-nowrap ${
-                            index === columns.length - 1 ? "text-right" : ""
+                            index === columns(passageType).length - 1
+                              ? "text-right"
+                              : ""
                           }`}
                         >
                           {item.label}
@@ -186,15 +190,20 @@ const PassageController = () => {
                     {logs?.map((item, index) => (
                       <TableRow
                         key={item.epc + index}
-                        className={`text-xl ${index % 2 === 0 ? "bg-white" : "bg-[#F4F7FC]"}`}
+                        className={cn(
+                          `text-xl, ${index % 2 === 0 ? "bg-[#D9EBF6]" : "bg-[#FFFF06]"}`,
+                          item.full_name.toUpperCase() === "UNKNOWN"
+                            ? "text-red-500"
+                            : ""
+                        )}
                       >
-                        {columns.map((column, colIndex) => {
+                        {columns(passageType).map((column, colIndex) => {
                           const value = item[column.key as keyof Employee];
                           return (
                             <TableCell
                               key={column.key}
                               className={`border-l min-w-fit whitespace-nowrap ${
-                                colIndex === columns.length - 1
+                                colIndex === columns(passageType).length - 1
                                   ? "text-right"
                                   : ""
                               }`}
