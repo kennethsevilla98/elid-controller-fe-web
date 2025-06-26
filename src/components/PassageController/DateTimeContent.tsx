@@ -1,12 +1,10 @@
-import { JP_JFLAG, PH_FLAG } from "@/assets/images";
 import { useRealTimeClock } from "@/hooks/useRealTimeClock";
-import { CalendarDays } from "lucide-react";
 
 const DateTimeContent = () => {
   const today = new Date();
   const todate = `${today.toLocaleString("default", { month: "long" })} ${today.getDate()}, ${today.getFullYear()}`;
 
-  const japanTime = useRealTimeClock("Asia/Tokyo");
+  // const japanTime = useRealTimeClock("Asia/Tokyo");
   const philippinesTime = useRealTimeClock("Asia/Manila");
 
   return (
