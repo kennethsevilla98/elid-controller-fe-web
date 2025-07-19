@@ -56,7 +56,7 @@ const columns = (type: PassageType) => {
   return [
     { key: "employee_id", label: "ID" },
     { key: "full_name", label: "EMPLOYEE NAME" },
-    { key: "section", label: "SECT." },
+    { key: "section", label: "SECTION" },
     { key: "time", label: type === "controller_out" ? "OUTGOING" : "INCOMING" },
   ];
 };
@@ -82,6 +82,7 @@ const PassageController = () => {
     const joinedRooms = new Set();
 
     const handleData = (data: Employee) => {
+      console.log("Received data:", data);
       setLogs((prev) => {
         const updatedLogs = [...prev];
         const existingIndex = updatedLogs.findIndex(
