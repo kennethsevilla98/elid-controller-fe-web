@@ -54,7 +54,6 @@ const passageTypeMapping: Record<string, PassageType> = {
 // Column definitions
 const columns = (type: PassageType) => {
   return [
-    { key: "employeeNo", label: "ID" },
     { key: "full_name", label: "EMPLOYEE NAME" },
     { key: "section", label: "SECTION" },
     { key: "time", label: type === "controller_out" ? "TIME OUT" : "TIME IN" },
