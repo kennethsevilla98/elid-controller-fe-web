@@ -29,19 +29,19 @@ interface Employee {
 }
 
 // Mock data
-// const mockEmployees: Employee[] = Array.from({ length: 20 }, (_, index) => ({
-//   EmployeeID: `E${String(index + 1).padStart(3, "0")}`,
-//   full_name: index === 1 ? "UNKNOWN" : `Employee John Doe a Dear ${index + 1}`,
-//   DepartmentName: `Department ${(index % 10) + 1}`,
-//   division: `Division ${(index % 5) + 1}`,
-//   section: `Section ${(index % 3) + 1}`,
-//   epc: `EPC${index + 1}`,
-//   time: `10:${String(index % 60).padStart(2, "0")}`,
-//   readCount: 1,
-//   tag_id: `TAG${index + 1}`,
-//   employee_id: `E${String(index + 1).padStart(3, "0")}`,
-//   department: `Department ${(index % 10) + 1}`,
-// }));
+const mockEmployees: Employee[] = Array.from({ length: 50 }, (_, index) => ({
+  EmployeeID: `E${String(index + 1).padStart(3, "0")}`,
+  full_name: index === 1 ? "UNKNOWN" : `Employee John Doe a Dear ${index + 1}`,
+  DepartmentName: `Department ${(index % 10) + 1}`,
+  division: `Division ${(index % 5) + 1}`,
+  section: `Section ${(index % 3) + 1}`,
+  epc: `EPC${index + 1}`,
+  time: `10:${String(index % 60).padStart(2, "0")}`,
+  readCount: 1,
+  tag_id: `TAG${index + 1}`,
+  employee_id: `E${String(index + 1).padStart(3, "0")}`,
+  department: `Department ${(index % 10) + 1}`,
+}));
 
 type PassageType = "controller_in" | "controller_out" | "controller_evacuation";
 
@@ -171,63 +171,66 @@ const PassageController = () => {
       {/* content */}
       <div className="p-8">
         {/* table */}
-        <div className="mt-4 shadow-lg p-8 rounded-xl bg-white h-[calc(100vh-300px)] overflow-y-auto">
+        <div className="mt-4 shadow-lg p-8 rounded-xl bg-white h-[calc(100vh-300px)] overflow-x-auto overflow-y-auto">
           {logs.length > 0 ? (
-            <div className=" border rounded-xl mt-4 overflow-hidden flex flex-col h-[96%]">
-              <div className="flex-1 overflow-y-auto">
-                <Table className="w-full table-auto border">
-                  <TableHeader className="bg-[#F4F7FCBF] sticky top-0 z-10">
-                    <TableRow>
-                      {columns(passageType).map((item, index) => (
-                        <TableHead
-                          key={item.key}
-                          className={`text-3xl text-left font-bold text-[#003F98] p-2 border-l min-w-fit whitespace-nowrap ${
-                            index === columns(passageType).length - 1
-                              ? "text-right"
+            <div className="border rounded-xl mt-4 overflow-hidden flex flex-col h-[96%] max-w-full">
+              {/* Removed inner scroll wrapper to preserve sticky header */}
+              <Table className="w-full table-auto border min-w-[600px] md:min-w-full responsive-table">
+                <TableHeader className="bg-[#F4F7FC] sticky top-0 z-10 op">
+                  <TableRow>
+                    {columns(passageType).map((item, index) => (
+                      <TableHead
+                        key={item.key}
+                        className={`text-[2.5vw] md:text-3xl lg:text-[45px] lg:leading-tight text-left font-bold text-[#003F98] p-2 border-l min-w-fit whitespace-normal ${
+                          index === columns(passageType).length - 1
+                            ? "text-right whitespace-nowrap"
+                            : index === columns(passageType).length - 2
+                              ? "whitespace-nowrap"
                               : ""
-                          }`}
-                        >
-                          {item.label}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-
-                  <TableBody className="text-[#003F98]">
-                    {logs?.map((item, index) => (
-                      <TableRow
-                        key={item.epc + index}
-                        className={cn(
-                          `text-xl, ${index % 2 === 0 ? "bg-[#D9EBF6]" : "bg-[#FFFF06]"}`,
-                          item.full_name.toUpperCase() === "UNKNOWN"
-                            ? "text-red-500"
-                            : ""
-                        )}
+                        }`}
                       >
-                        {columns(passageType).map((column, colIndex) => {
-                          const value = item[column.key as keyof Employee];
-                          return (
-                            <TableCell
-                              key={column.key}
-                              className={`border-l min-w-fit whitespace-nowrap text-3xl font-semibold ${
-                                colIndex === columns(passageType).length - 1
-                                  ? "text-right"
-                                  : ""
-                              }`}
-                            >
-                              {value}
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
+                        {item.label}
+                      </TableHead>
                     ))}
-                  </TableBody>
-                </Table>
-              </div>
+                  </TableRow>
+                </TableHeader>
+
+                <TableBody className="text-[#003F98]">
+                  {logs.map((item, index) => (
+                    <TableRow
+                      key={item.epc + index}
+                      className={cn(
+                        `text-2xl md:text-3xl lg:text-[45px] lg:leading-tight ${
+                          index % 2 === 0 ? "bg-[#D9EBF6]" : "bg-[#FFFF06]"
+                        }`,
+                        item.full_name.toUpperCase() === "UNKNOWN"
+                          ? "text-red-500"
+                          : ""
+                      )}
+                    >
+                      {columns(passageType).map((column, colIndex) => {
+                        const value = item[column.key as keyof Employee];
+                        return (
+                          <TableCell
+                            key={column.key}
+                            className={`border-l min-w-fit whitespace-normal font-semibold ${
+                              colIndex === columns(passageType).length - 1
+                                ? "text-right whitespace-nowrap"
+                                : ""
+                            }`}
+                          >
+                            {value}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           ) : (
             <div className="h-full w-full flex items-center justify-center flex-col gap-4">
-              <img src={NO_ENTRIES} alt="No enties" />
+              <img src={NO_ENTRIES} alt="No entries" />
               <p className="text-xl">No entries detected.</p>
             </div>
           )}

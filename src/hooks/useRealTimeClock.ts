@@ -8,14 +8,12 @@ export const useRealTimeClock = (timeZone: string | undefined) => {
       const now = new Date();
 
       const formatTime = (date: Date) =>
-        date
-          .toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: true,
-          })
-          .toUpperCase();
+        date.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        });
 
       const newTime = new Date(now.toLocaleString("en-US", { timeZone }));
 
