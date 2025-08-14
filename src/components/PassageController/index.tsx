@@ -69,6 +69,52 @@ const PassageController = () => {
 
   const timeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const stopRef = useRef<() => void>(() => {});
+
+  const playPattern = () => {
+    // Stop old sound if still running
+    stopRef.current();
+
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    const ctx = new AudioContextClass();
+    audioCtxRef.current = ctx;
+
+    let stopped = false;
+
+    const steps = [];
+    const beepDuration = 500; // ms
+    const gapDuration = 200; // ms
+    const totalStepTime = beepDuration + gapDuration;
+    const totalTime = 10000; // 10 seconds
+    const repeatCount = Math.floor(totalTime / totalStepTime);
+
+    for (let i = 0; i < repeatCount; i++) {
+      steps.push({ frequency: 880, duration: beepDuration });
+      steps.push({ gap: gapDuration });
+    }
+
+    let time = ctx.currentTime;
+    steps.forEach(step => {
+      if (stopped) return;
+      if (step.frequency) {
+        const osc = ctx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.value = step.frequency;
+        osc.connect(ctx.destination);
+        osc.start(time);
+        osc.stop(time + step.duration / 1000);
+      }
+      time += (step.duration ?? step.gap ?? 0) / 1000;
+    });
+
+    // Save stop method
+    stopRef.current = () => {
+      stopped = true;
+      ctx.close();
+    };
+  };
+
   useEffect(() => {
     const socket = io(socketUrl, {
       transports: ["websocket"],
@@ -82,6 +128,12 @@ const PassageController = () => {
 
     const handleData = (data: Employee) => {
       console.log("Received data:", data);
+
+      if(data.full_name === "UNKNOWN")
+        {
+          playPattern()
+        }
+
       setLogs((prev) => {
         const updatedLogs = [...prev];
         const existingIndex = updatedLogs.findIndex(
