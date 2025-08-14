@@ -13,6 +13,7 @@ import { io } from "socket.io-client";
 import StatusBar from "./StatusBar";
 import { getBeepDuration, getIdleTimeOut, getWebSocketUrl } from "@/utils/env";
 import { cn } from "@/lib/utils";
+import useBeep from "@/hooks/useBeep";
 
 interface Employee {
   EmployeeID: string;
@@ -62,7 +63,7 @@ const columns = (type: PassageType) => {
 
 const socketUrl = getWebSocketUrl();
 const timeOut = Number(getIdleTimeOut());
-const beepDuration = Number(getBeepDuration());
+const beepTimeout = Number(getBeepDuration());
 
 const PassageController = () => {
   const [logs, setLogs] = useState<Employee[]>([]);
@@ -70,50 +71,21 @@ const PassageController = () => {
 
   const timeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const stopRef = useRef<() => void>(() => {});
+   const { pattern } = useBeep();
 
-  const playPattern = () => {
-    // Stop old sound if still running
-    stopRef.current();
-
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    const ctx = new AudioContextClass();
-    audioCtxRef.current = ctx;
-
-    let stopped = false;
-
+  const playBeepPattern = () => {
     const steps = [];
-    
-    const gapDuration = 200; // ms
-    const totalStepTime = beepDuration + gapDuration;
-    const totalTime = beepDuration ?? 10000; // 10 seconds
-    const repeatCount = Math.floor(totalTime / totalStepTime);
+    const beepDuration = 200;
+    const gapDuration = 200;
+    const totalTime = beepTimeout;
+    const repeatCount = Math.floor(totalTime / (beepDuration + gapDuration));
 
     for (let i = 0; i < repeatCount; i++) {
       steps.push({ frequency: 880, duration: beepDuration });
       steps.push({ gap: gapDuration });
     }
 
-    let time = ctx.currentTime;
-    steps.forEach(step => {
-      if (stopped) return;
-      if (step.frequency) {
-        const osc = ctx.createOscillator();
-        osc.type = "sine";
-        osc.frequency.value = step.frequency;
-        osc.connect(ctx.destination);
-        osc.start(time);
-        osc.stop(time + step.duration / 1000);
-      }
-      time += (step.duration ?? step.gap ?? 0) / 1000;
-    });
-
-    // Save stop method
-    stopRef.current = () => {
-      stopped = true;
-      ctx.close();
-    };
+    pattern(steps); // will automatically stop any previous one
   };
 
   useEffect(() => {
@@ -132,7 +104,7 @@ const PassageController = () => {
 
       if(data.full_name === "UNKNOWN")
         {
-          playPattern()
+          playBeepPattern()
         }
 
       setLogs((prev) => {
