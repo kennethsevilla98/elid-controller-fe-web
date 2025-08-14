@@ -21,4 +21,5 @@ export const getWebSocketUrl = () => getEnvVar("VITE_WEB_SOCKET_URL");
 export const getPassageType = () => getEnvVar("VITE_PASSAGE_TYPE");
 export const getIdleTimeOut = () => getEnvVar("VITE_IDLE_TIMEOUT");
 export const getHostAppURL = () => getEnvVar("VITE_HOST_APP_URL");
+export const getBeepDuration = ()=> getEnvVar("VITE_BEEP_DURATION");
 // Add other env variable getters as needed

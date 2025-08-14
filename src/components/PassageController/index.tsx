@@ -11,7 +11,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import StatusBar from "./StatusBar";
-import { getIdleTimeOut, getWebSocketUrl } from "@/utils/env";
+import { getBeepDuration, getIdleTimeOut, getWebSocketUrl } from "@/utils/env";
 import { cn } from "@/lib/utils";
 
 interface Employee {
@@ -62,6 +62,7 @@ const columns = (type: PassageType) => {
 
 const socketUrl = getWebSocketUrl();
 const timeOut = Number(getIdleTimeOut());
+const beepDuration = Number(getBeepDuration());
 
 const PassageController = () => {
   const [logs, setLogs] = useState<Employee[]>([]);
@@ -83,10 +84,10 @@ const PassageController = () => {
     let stopped = false;
 
     const steps = [];
-    const beepDuration = 500; // ms
+    
     const gapDuration = 200; // ms
     const totalStepTime = beepDuration + gapDuration;
-    const totalTime = 10000; // 10 seconds
+    const totalTime = beepDuration ?? 10000; // 10 seconds
     const repeatCount = Math.floor(totalTime / totalStepTime);
 
     for (let i = 0; i < repeatCount; i++) {
