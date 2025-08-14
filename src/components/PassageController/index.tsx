@@ -81,7 +81,7 @@ const PassageController = () => {
     const repeatCount = Math.floor(totalTime / (beepDuration + gapDuration));
 
     for (let i = 0; i < repeatCount; i++) {
-      steps.push({ frequency: 880, duration: beepDuration });
+      steps.push({ frequency: 880, duration: beepDuration, volume: 100 });
       steps.push({ gap: gapDuration });
     }
 
