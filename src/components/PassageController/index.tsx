@@ -29,10 +29,13 @@ interface Employee {
   department?: string;
 }
 
-// Mock data
+// // Mock data
 // const mockEmployees: Employee[] = Array.from({ length: 50 }, (_, index) => ({
 //   EmployeeID: `E${String(index + 1).padStart(3, "0")}`,
-//   full_name: index === 1 ? "UNKNOWN" : `Employee John Doe a Dear ${index + 1}`,
+//   full_name:
+//     index === 1
+//       ? "UNKNOWN"
+//       : `Employee John Doe a  asdfasdfasdfasdfasdfasdfasd Dear ${index + 1}`,
 //   DepartmentName: `Department ${(index % 10) + 1}`,
 //   division: `Division ${(index % 5) + 1}`,
 //   section: `Section ${(index % 3) + 1}`,
@@ -71,7 +74,7 @@ const PassageController = () => {
 
   const timeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
-   const { pattern } = useBeep();
+  const { pattern } = useBeep();
 
   const playBeepPattern = () => {
     const steps = [];
@@ -102,10 +105,9 @@ const PassageController = () => {
     const handleData = (data: Employee) => {
       console.log("Received data:", data);
 
-      if(data.full_name === "UNKNOWN")
-        {
-          playBeepPattern()
-        }
+      if (data.full_name === "UNKNOWN") {
+        playBeepPattern();
+      }
 
       setLogs((prev) => {
         const updatedLogs = [...prev];
@@ -239,11 +241,18 @@ const PassageController = () => {
                         return (
                           <TableCell
                             key={column.key}
-                            className={`border-l min-w-fit whitespace-normal font-semibold ${
-                              colIndex === columns(passageType).length - 1
-                                ? "text-right whitespace-nowrap"
-                                : ""
-                            }`}
+                            className={`border-l min-w-fit font-semibold
+                                  ${
+                                    colIndex === 0
+                                      ? "whitespace-nowrap overflow-hidden text-ellipsis max-w-[21ch]"
+                                      : "whitespace-normal"
+                                  }
+                                  ${
+                                    colIndex === columns(passageType).length - 1
+                                      ? "text-right whitespace-nowrap"
+                                      : ""
+                                  }
+                                `}
                           >
                             {value}
                           </TableCell>
