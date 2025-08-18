@@ -105,7 +105,7 @@ const PassageController = () => {
     const handleData = (data: Employee) => {
       console.log("Received data:", data);
 
-      if (data.full_name === "UNKNOWN") {
+      if (data.full_name.toUpperCase() === "UNKNOWN") {
         playBeepPattern();
       }
 
