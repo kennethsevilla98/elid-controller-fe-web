@@ -9,11 +9,11 @@ const DateTimeContent = () => {
 
   return (
     <div className="flex gap-8 h-[70px] justify-between px-8 mt-8 mb-[-30px]">
-      <div className=" flex justify-center items-center gap-2 w-full text-white bg-[#003F98] text-4xl font-bold px-8 rounded-lg">
+      <div className=" flex justify-center items-center gap-2 w-full text-white bg-[#003F98] text-3xl font-bold px-8 rounded-lg">
         {/* <CalendarDays /> */}
         <p>{todate}</p>
       </div>
-      <div className="flex items-center gap-8 justify-center text-white bg-[#003F98] text-4xl font-bold  rounded-lg px-8 w-full">
+      <div className="flex items-center gap-8 justify-center text-white bg-[#003F98] text-3xl font-bold  rounded-lg px-8 w-full">
         {/* <img src={PH_FLAG} alt="phil" /> */}
         <p>{philippinesTime}</p>
       </div>

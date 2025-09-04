@@ -244,7 +244,7 @@ const PassageController = () => {
                             className={`border-l min-w-fit font-semibold
                                   ${
                                     colIndex === 0
-                                      ? "whitespace-nowrap overflow-hidden text-ellipsis max-w-[21ch]"
+                                      ? "whitespace-nowrap overflow-hidden text-ellipsis max-w-[18ch]"
                                       : "whitespace-normal"
                                   }
                                   ${
