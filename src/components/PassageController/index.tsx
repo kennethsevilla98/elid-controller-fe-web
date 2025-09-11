@@ -30,29 +30,30 @@ interface Employee {
 }
 
 // // Mock data
-// const mockEmployees: Employee[] = Array.from({ length: 50 }, (_, index) => ({
-//   EmployeeID: `E${String(index + 1).padStart(3, "0")}`,
-//   full_name:
-//     index === 1
-//       ? "UNKNOWN"
-//       : `Employee John Doe a  asdfasdfasdfasdfasdfasdfasd Dear ${index + 1}`,
-//   DepartmentName: `Department ${(index % 10) + 1}`,
-//   division: `Division ${(index % 5) + 1}`,
-//   section: `Section ${(index % 3) + 1}`,
-//   epc: `EPC${index + 1}`,
-//   time: `10:${String(index % 60).padStart(2, "0")}`,
-//   readCount: 1,
-//   tag_id: `TAG${index + 1}`,
-//   employee_id: `E${String(index + 1).padStart(3, "0")}`,
-//   department: `Department ${(index % 10) + 1}`,
-// }));
+const mockEmployees: Employee[] = Array.from({ length: 50 }, (_, index) => ({
+  EmployeeID: `E${String(index + 1).padStart(3, "0")}`,
+  full_name:
+    index === 1
+      ? "UNKNOWN"
+      : `Employee John Doe a  asdfasdfasdfasdfasdfasdfasd Dear ${index + 1}`,
+  DepartmentName: `Department ${(index % 10) + 1}`,
+  division: `Division ${(index % 5) + 1}`,
+  section: `Section ${(index % 3) + 1}`,
+  epc: `EPC${index + 1}`,
+  time: `10:${String(index % 60).padStart(2, "0")}`,
+  readCount: 1,
+  tag_id: `TAG${index + 1}`,
+  employee_id: `E${String(index + 1).padStart(3, "0")}`,
+  department: `Department ${(index % 10) + 1}`,
+}));
 
-type PassageType = "controller_in" | "controller_out" | "controller_evacuation";
+type PassageType = "controller_in" | "controller_out" | "controller_safe" | "controller_home";
 
 const passageTypeMapping: Record<string, PassageType> = {
   In: "controller_in",
   Out: "controller_out",
-  Evacuation: "controller_evacuation",
+  Safe: "controller_safe",
+  Home: "controller_home",
 };
 
 // Column definitions
@@ -69,7 +70,7 @@ const timeOut = Number(getIdleTimeOut());
 const beepTimeout = Number(getBeepDuration());
 
 const PassageController = () => {
-  const [logs, setLogs] = useState<Employee[]>([]);
+  const [logs, setLogs] = useState<Employee[]>(mockEmployees);
   const [passageType, setPassageType] = useState<PassageType>("controller_in");
 
   const timeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
@@ -193,7 +194,7 @@ const PassageController = () => {
   }, []);
 
   return (
-    <div className="bg-blue-50 min-h-screen overflow-hidden">
+    <div className="bg-blue-50 min-h-screen overflow-hidden"> 
       <StatusBar type={passageType} />
 
       {/* content */}
