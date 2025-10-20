@@ -75,7 +75,10 @@ const beepTimeout = Number(getBeepDuration());
 
 const PassageController = () => {
   const [logs, setLogs] = useState<Employee[]>([]);
-  const [passageType, setPassageType] = useState<PassageType>("controller_in");
+  const savedPassageType = localStorage.getItem("passage_type") as PassageType;
+  const [passageType, setPassageType] = useState<PassageType>(
+    savedPassageType || "controller_in"
+  );
 
   const timeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
@@ -158,6 +161,8 @@ const PassageController = () => {
 
     socket.on("device_detail", (type) => {
       console.log(`Device type: ${type}`);
+
+      localStorage.setItem("passage_type", passageTypeMapping[type]);
 
       if (!joinedRooms.has(type)) {
         socket.emit("join", passageTypeMapping[type]);
