@@ -108,8 +108,6 @@ const PassageController = () => {
       timeout: 10000,
     });
 
-    const joinedRooms = new Set();
-
     const handleData = (data: Employee) => {
       console.log("Received data:", data);
 
@@ -162,11 +160,9 @@ const PassageController = () => {
     socket.on("device_detail", (type) => {
       console.log(`Device type: ${type}`);
 
-      localStorage.setItem("passage_type", passageTypeMapping[type]);
-
-      if (!joinedRooms.has(type)) {
+      if (savedPassageType !== passageTypeMapping[type]) {
         socket.emit("join", passageTypeMapping[type]);
-        joinedRooms.add(type);
+        localStorage.setItem("passage_type", passageTypeMapping[type]);
         setPassageType(passageTypeMapping[type]);
       } else {
         console.log(`Already joined room: ${type}, skipping`);
