@@ -105,7 +105,7 @@ const PassageController = () => {
     const socket = io(socketUrl, {
       transports: ["websocket"],
       reconnection: true,
-      reconnectionAttempts: 5,
+      // reconnectionAttempts: ,
       reconnectionDelay: 1000,
       timeout: 10000,
     });
@@ -163,12 +163,10 @@ const PassageController = () => {
     socket.on("device_detail", (type) => {
       console.log(`Device type: ${type}`);
 
-      if (savedPassageType !== passageTypeMapping[type]) {
+      if (type) {
         socket.emit("join", passageTypeMapping[type]);
         localStorage.setItem("passage_type", passageTypeMapping[type]);
         setPassageType(passageTypeMapping[type]);
-      } else {
-        console.log(`Already joined room: ${type}, skipping`);
       }
     });
 
