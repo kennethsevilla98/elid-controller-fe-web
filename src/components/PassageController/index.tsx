@@ -80,6 +80,8 @@ const PassageController = () => {
     savedPassageType || "controller_in"
   );
 
+  const [isOnline, setIsOnline] = useState(false);
+
   const timeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const { pattern } = useBeep();
@@ -152,6 +154,7 @@ const PassageController = () => {
 
     const handleConnect = () => {
       console.log("Connected to server");
+      setIsOnline(true);
       socket.emit("join", "check_device");
     };
 
@@ -173,10 +176,12 @@ const PassageController = () => {
 
     socket.on("disconnect", () => {
       console.warn("Disconnected from server");
+      setIsOnline(false);
     });
 
     const handleConnectError = (error: Error) => {
       console.error("Connection error: ", error);
+      setIsOnline(false);
       if (
         error.message.includes("ECONNREFUSED") ||
         error.message.includes("ENOTFOUND")
@@ -200,7 +205,7 @@ const PassageController = () => {
 
   return (
     <div className="bg-blue-50 min-h-screen overflow-hidden">
-      <StatusBar type={passageType} />
+      <StatusBar type={passageType} isOnline={isOnline} />
 
       {/* content */}
       <div className="p-8">

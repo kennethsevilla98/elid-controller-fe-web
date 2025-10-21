@@ -5,7 +5,11 @@ import { cn } from "@/lib/utils";
 import { useLANStatus } from "@/hooks/useStableLocalNetworkStatus";
 
 interface StatusBarProps {
-  type?: "controller_in" | "controller_out" | "controller_safe" | "controller_home";
+  type?:
+    | "controller_in"
+    | "controller_out"
+    | "controller_safe"
+    | "controller_home";
   isOnline?: boolean;
 }
 
@@ -13,12 +17,13 @@ const titleHeader = {
   controller_in: "ENTRANCE",
   controller_out: "EXIT",
   controller_safe: "EVACUATION",
-  controller_home: "HOME"
+  controller_home: "HOME",
 };
 
-const StatusBar = ({ type = "controller_in" }: StatusBarProps) => {
-  const { isConnectedToLAN } = useLANStatus(1000);
-
+const StatusBar = ({
+  type = "controller_in",
+  isOnline = false,
+}: StatusBarProps) => {
   return (
     <>
       <div
@@ -45,10 +50,10 @@ const StatusBar = ({ type = "controller_in" }: StatusBarProps) => {
           <span
             className={cn(
               "h-4 w-4 rounded-full ",
-              isConnectedToLAN ? "bg-green-600" : "bg-red-800"
+              isOnline ? "bg-green-600" : "bg-red-800"
             )}
           ></span>
-          {isConnectedToLAN ? "ONLINE MODE" : "OFFLINE MODE"}
+          {isOnline ? "ONLINE MODE" : "OFFLINE MODE"}
         </span>
       </div>
       {type === "controller_safe" ? <AlertStripe /> : <DateTimeContent />}
