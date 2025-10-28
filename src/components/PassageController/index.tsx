@@ -81,6 +81,7 @@ const PassageController = () => {
   );
 
   const [isOnline, setIsOnline] = useState(false);
+  const [dateTime, setDateTime] = useState<string>();
 
   const timeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
@@ -160,6 +161,10 @@ const PassageController = () => {
 
     socket.on("connect", handleConnect);
 
+    socket.on("asof", (serverDateTime: string) => {
+      setDateTime(serverDateTime);
+    });
+
     socket.on("device_detail", (type) => {
       console.log(`Device type: ${type}`);
 
@@ -203,7 +208,7 @@ const PassageController = () => {
 
   return (
     <div className="bg-blue-50 min-h-screen overflow-hidden">
-      <StatusBar type={passageType} isOnline={isOnline} />
+      <StatusBar type={passageType} isOnline={isOnline} dateTime={dateTime} />
 
       {/* content */}
       <div className="p-8">

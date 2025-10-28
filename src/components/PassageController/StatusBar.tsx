@@ -2,7 +2,6 @@ import { ELLIPSE_1, ELLIPSE_2, EPSON_LOGO_WHITE } from "@/assets/images";
 import AlertStripe from "./AlertStripe";
 import DateTimeContent from "./DateTimeContent";
 import { cn } from "@/lib/utils";
-import { useLANStatus } from "@/hooks/useStableLocalNetworkStatus";
 
 interface StatusBarProps {
   type?:
@@ -11,6 +10,7 @@ interface StatusBarProps {
     | "controller_safe"
     | "controller_home";
   isOnline?: boolean;
+  dateTime?: string;
 }
 
 const titleHeader = {
@@ -23,6 +23,7 @@ const titleHeader = {
 const StatusBar = ({
   type = "controller_in",
   isOnline = false,
+  dateTime,
 }: StatusBarProps) => {
   return (
     <>
@@ -56,7 +57,11 @@ const StatusBar = ({
           {isOnline ? "ONLINE MODE" : "OFFLINE MODE"}
         </span>
       </div>
-      {type === "controller_safe" ? <AlertStripe /> : <DateTimeContent />}
+      {type === "controller_safe" ? (
+        <AlertStripe />
+      ) : (
+        <DateTimeContent dateTime={dateTime} />
+      )}
     </>
   );
 };
