@@ -155,7 +155,7 @@ const PassageController = () => {
 
     const handleConnect = () => {
       console.log("Connected to server");
-      setIsOnline(true);
+
       socket.emit("join", "check_device");
     };
 
@@ -176,6 +176,11 @@ const PassageController = () => {
     });
 
     socket.on("data", handleData);
+
+    socket.on("status", (status: string) => {
+      console.log(`Status: ${status}`);
+      setIsOnline(status === "Online");
+    });
 
     socket.on("disconnect", () => {
       console.warn("Disconnected from server");
