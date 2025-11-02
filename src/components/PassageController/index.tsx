@@ -206,6 +206,8 @@ const PassageController = () => {
     };
   }, []);
 
+  console.log("env vars:", { socketUrl, timeOut, beepTimeout });
+
   return (
     <div className="bg-blue-50 min-h-screen overflow-hidden">
       <StatusBar type={passageType} isOnline={isOnline} dateTime={dateTime} />

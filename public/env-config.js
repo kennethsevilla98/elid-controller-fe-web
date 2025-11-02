@@ -1,0 +1,9 @@
+window.env = {
+  VITE_API_BASE_URL: "https://jsonplaceholder.typicode.com",
+  VITE_DOCKER_BASE_URL: "http://localhost:8765",
+  VITE_WEB_SOCKET_URL: "http://localhost:3000",
+  VITE_PASSAGE_TYPE: "controller_in", // controller_in, controller_out, controller_evacuation
+  VITE_IDLE_TIMEOUT: "10000", // in ms
+  VITE_HOST_APP_URL: "http://185.144.158.11:3000/api-docs/",
+  VITE_BEEP_DURATION: "10000", // e in ms
+};
