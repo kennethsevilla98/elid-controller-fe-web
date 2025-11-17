@@ -33,6 +33,24 @@ const StatusBar = ({
           type !== "controller_safe" ? "bg-[#003F98] " : "bg-red-800"
         )}
       >
+        {!isOnline && (
+          <>
+            <style>{`
+              @keyframes totalFade {
+                0% { opacity: 1; }
+                50% { opacity: 0; }
+                100% { opacity: 1; }
+              }
+            `}</style>
+
+            <div
+              className="h-12 w-3/4 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 px-3 py-1 rounded flex items-center justify-center"
+              style={{ animation: "totalFade 2.5s ease-in-out infinite" }}
+            >
+              <p className="text-xl font-bold">OFFLINE MODE</p>
+            </div>
+          </>
+        )}
         <img
           src={ELLIPSE_1}
           alt="ellipse 1"
